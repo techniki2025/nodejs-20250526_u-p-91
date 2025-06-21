@@ -38,26 +38,33 @@ export class TasksService {
 
   getFilteredTasks(
     status?: TaskStatus,
-    page?: number,
-    limit?: number,
+    page: number = 1,
+    limit: number = this.tasks.length,
     sortBy? : SortBy,
   ): Task[] {
-    let result: Task[] = [];
+    let result: Task[] = this.tasks;
 
     if(status) {
       if(!Object.values(TaskStatus).includes(status)) throw new BadRequestException (`No exist status ${status}`)
       result.push(...this.tasks.filter( task => task.status === status));
-    } else {
-      result = this.tasks;
     }
 
-    if(page) {
-      result = result.slice(page - 1);
-    }
+    // if(page) {
+    //   result = result.slice(page - 1);
+    // }
 
-    if(limit) {
-      result = result.slice(0, limit);
-    }
+    // if(limit) {
+    //   result = result.slice(0, limit);
+    // }
+
+    if(page < 0) throw new BadRequestException(`No correct page`);
+    if(limit < 0) throw new BadRequestException(`No correct limit`);
+    if(page == 0) page = 1;
+
+    const startIndex = page - 1;
+    const endIndex = startIndex + +limit;
+    result = result.slice(startIndex, endIndex);
+
 
     //закоментил, т.к. тест ругается, где массив на выходе пустой ждет
     // if(!result.length) throw new NotFoundException(`Tasks is not found`);
